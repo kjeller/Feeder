@@ -36,9 +36,9 @@ dependencyResolutionManagement {
             version("rome", "1.7.1-f8")
             version("moshi", "1.12.0")
             version("threeten", "1.2.2")
-            version("jsoup", "1.7.3")
+            version("jsoup", "1.16.1")
             version("tagsoup", "1.2.1")
-            version("readability4j", "1.0.5")
+            version("crux", "3.12.0")
             version("retrofit", "2.9.0")
             version("qrgen", "2.6.0")
             version("androidxCore", "1.7.0")
@@ -265,10 +265,10 @@ dependencyResolutionManagement {
             library("androidx-browser", "androidx.browser", "browser").versionRef("androidxBrowser")
             // Full text
             library(
-                "readability4j",
-                "net.dankito.readability4j",
-                "readability4j"
-            ).versionRef("readability4j")
+                "crux",
+                "com.chimbori.crux",
+                "crux"
+            ).versionRef("crux")
             // For feeder-sync
             library("retrofit", "com.squareup.retrofit2", "retrofit").versionRef("retrofit")
             library(

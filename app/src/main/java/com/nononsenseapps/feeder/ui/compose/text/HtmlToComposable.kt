@@ -78,10 +78,11 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import org.jsoup.Jsoup
-import org.jsoup.helper.StringUtil
+import org.jsoup.internal.StringUtil
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
+import org.jsoup.select.NodeFilter
 
 private const val LOG_TAG = "FEEDER_HTMLTOCOM"
 
@@ -555,7 +556,7 @@ private fun HtmlComposer.appendTextChildren(
                     }
 
                     "img" -> {
-                        appendImage(onLinkClick = onLinkClick) { onClick ->
+                       appendImage(onLinkClick = onLinkClick) { onClick ->
                             val dimens = LocalDimens.current
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -573,7 +574,13 @@ private fun HtmlComposer.appendTextChildren(
 
                     "ul" -> {
                         element.children()
-                            .filter { it.tagName() == "li" }
+                            .filter { it, _ ->
+                                if (it.nodeName() == "li") {
+                                    NodeFilter.FilterResult.CONTINUE
+                                } else {
+                                    NodeFilter.FilterResult.SKIP_ENTIRELY
+                                }
+                            }
                             .forEach { listItem ->
                                 withParagraph {
                                     // no break space
@@ -590,7 +597,13 @@ private fun HtmlComposer.appendTextChildren(
 
                     "ol" -> {
                         element.children()
-                            .filter { it.tagName() == "li" }
+                            .filter { it, _ ->
+                                if (it.nodeName() == "li") {
+                                    NodeFilter.FilterResult.CONTINUE
+                                } else {
+                                    NodeFilter.FilterResult.SKIP_ENTIRELY
+                                }
+                            }
                             .forEachIndexed { i, listItem ->
                                 withParagraph {
                                     // no break space
@@ -908,7 +921,13 @@ private fun EagerComposer.tableColFirst(
     ) {
         key(element, baseUrl, onLinkClick) {
             element.children()
-                .filter { it.tagName() == "caption" }
+                .filter { it, _ ->
+                    if (it.nodeName() == "caption") {
+                        NodeFilter.FilterResult.CONTINUE
+                    } else {
+                        NodeFilter.FilterResult.SKIP_ENTIRELY
+                    }
+                }
                 .forEach {
                     withTextStyle(NestedTextStyle.CAPTION) {
                         appendTextChildren(
@@ -925,12 +944,15 @@ private fun EagerComposer.tableColFirst(
         val rowData by remember {
             derivedStateOf {
                 element.children()
-                    .filter {
-                        it.tagName() in setOf(
+                    .filter { it, _ ->
+                        when (it.nodeName() in setOf(
                             "thead",
                             "tbody",
                             "tfoot",
-                        )
+                        )) {
+                            true -> NodeFilter.FilterResult.CONTINUE
+                            false -> NodeFilter.FilterResult.SKIP_ENTIRELY
+                        }
                     }
                     .sortedBy {
                         when (it.tagName()) {
@@ -976,7 +998,12 @@ private fun EagerComposer.tableColFirst(
                                 },
                             ) {
                                 rowElement.children()
-                                    .filter { it.tagName() in setOf("th", "td") }
+                                    .filter { it, _ ->
+                                        when (it.nodeName() in setOf("th", "td")) {
+                                            true -> NodeFilter.FilterResult.CONTINUE
+                                            false -> NodeFilter.FilterResult.SKIP_ENTIRELY
+                                        }
+                                    }
                                     .elementAtOrNullWithSpans(colIndex)
                                     ?.let { colElement ->
                                         withParagraph {

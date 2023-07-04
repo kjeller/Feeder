@@ -27,6 +27,7 @@ import okhttp3.Response
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.select.NodeFilter
 import org.kodein.di.DI
 import org.kodein.di.DIAware
 import org.kodein.di.instance
@@ -103,18 +104,24 @@ class FeedParser(override val di: DI) : DIAware {
         val doc = Jsoup.parse(html.byteInputStream(), "UTF-8", "")
 
         val feeds = doc.getElementsByAttributeValue("rel", "alternate")
-            ?.filter { it.hasAttr("href") && it.hasAttr("type") }
-            ?.filter {
-                val t = it.attr("type").lowercase(Locale.getDefault())
-                when {
-                    t.contains("application/atom") -> true
-                    t.contains("application/rss") -> true
-                    // Youtube for example has alternate links with application/json+oembed type.
-                    t == "application/json" -> true
-                    else -> false
+            ?.filter { it, _ ->
+                if (it.hasAttr("href") && it.hasAttr("type")) {
+                    NodeFilter.FilterResult.CONTINUE
+                } else {
+                    NodeFilter.FilterResult.SKIP_ENTIRELY
                 }
             }
-            ?.filter {
+            ?.filter { it, _ ->
+                val t = it.attr("type").lowercase(Locale.getDefault())
+                when {
+                    t.contains("application/atom") -> NodeFilter.FilterResult.CONTINUE
+                    t.contains("application/rss") -> NodeFilter.FilterResult.CONTINUE
+                    // Youtube for example has alternate links with application/json+oembed type.
+                    t == "application/json" -> NodeFilter.FilterResult.CONTINUE
+                    else -> NodeFilter.FilterResult.SKIP_ENTIRELY
+                }
+            }
+            ?.filter { it, _ ->
                 val l = it.attr("href").lowercase(Locale.getDefault())
                 try {
                     if (baseUrl != null) {
@@ -122,9 +129,9 @@ class FeedParser(override val di: DI) : DIAware {
                     } else {
                         URL(l)
                     }
-                    true
+                    NodeFilter.FilterResult.CONTINUE
                 } catch (_: MalformedURLException) {
-                    false
+                    NodeFilter.FilterResult.SKIP_ENTIRELY
                 }
             }
             ?.mapNotNull { e ->

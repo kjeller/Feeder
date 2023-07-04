@@ -19,8 +19,10 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
-import net.dankito.readability4j.extended.Readability4JExtended
+import com.chimbori.crux.Crux
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
+import org.jsoup.nodes.Document
 import org.kodein.di.DI
 import org.kodein.di.DIAware
 import org.kodein.di.android.closestDI
@@ -111,16 +113,14 @@ class FullTextParser(override val di: DI) : DIAware {
 
                     String(bytes, charset ?: java.nio.charset.StandardCharsets.UTF_8)
                 } ?: return@withContext false to null
-
                 logDebug(LOG_TAG, "Parsing article ${feedItem.link}")
-                val article = Readability4JExtended(url, html).parse()
-
+                val extract = Crux().extractFrom(url.toHttpUrl(), Document(html))
                 logDebug(LOG_TAG, "Writing article ${feedItem.link}")
                 withContext(Dispatchers.IO) {
                     filePathProvider.fullArticleDir.mkdirs()
                     blobFullOutputStream(feedItem.id, filePathProvider.fullArticleDir)
                         .bufferedWriter().use { writer ->
-                            writer.write(article.contentWithUtf8Encoding)
+                            writer.write(extract.article?.html())
                         }
                 }
                 true to null

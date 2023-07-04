@@ -286,7 +286,7 @@ dependencies {
     // Custom tabs
     implementation(libs.androidx.browser)
     // Full text
-    implementation(libs.readability4j)
+    implementation(libs.crux)
     // For feeder-sync
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.moshi)

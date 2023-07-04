@@ -8,6 +8,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
+import org.jsoup.select.NodeFilter
 
 /**
  * Returns "plain text" with annotations for TTS
@@ -256,7 +257,13 @@ private fun AnnotatedStringComposer.appendTextChildren(
 
                     "ul" -> {
                         element.children()
-                            .filter { it.tagName() == "li" }
+                            .filter { it, _ ->
+                                if (it.nodeName() == "li") {
+                                    NodeFilter.FilterResult.CONTINUE
+                                } else {
+                                    NodeFilter.FilterResult.SKIP_ENTIRELY
+                                }
+                            }
                             .forEach { listItem ->
                                 withParagraph {
                                     // no break space
@@ -271,7 +278,13 @@ private fun AnnotatedStringComposer.appendTextChildren(
 
                     "ol" -> {
                         element.children()
-                            .filter { it.tagName() == "li" }
+                            .filter { it, _ ->
+                                if (it.nodeName() == "li") {
+                                    NodeFilter.FilterResult.CONTINUE
+                                } else {
+                                    NodeFilter.FilterResult.SKIP_ENTIRELY
+                                }
+                            }
                             .forEachIndexed { i, listItem ->
                                 withParagraph {
                                     // no break space
@@ -296,7 +309,13 @@ private fun AnnotatedStringComposer.appendTextChildren(
                             followed optionally by a tfoot element
                              */
                             element.children()
-                                .filter { it.tagName() == "caption" }
+                                .filter { it, _ ->
+                                    if (it.nodeName() == "caption") {
+                                        NodeFilter.FilterResult.CONTINUE
+                                    } else {
+                                        NodeFilter.FilterResult.SKIP_ENTIRELY
+                                    }
+                                }
                                 .forEach {
                                     appendTextChildren(
                                         it.childNodes(),
@@ -307,12 +326,15 @@ private fun AnnotatedStringComposer.appendTextChildren(
 
                             element.children()
                             element.children()
-                                .filter {
-                                    it.tagName() in setOf(
+                                .filter { it, _ ->
+                                    when (it.nodeName() in setOf(
                                         "thead",
                                         "tbody",
                                         "tfoot",
-                                    )
+                                    )) {
+                                        true -> NodeFilter.FilterResult.CONTINUE
+                                        false ->NodeFilter.FilterResult.SKIP_ENTIRELY
+                                    }
                                 }
                                 .sortedBy {
                                     when (it.tagName()) {
