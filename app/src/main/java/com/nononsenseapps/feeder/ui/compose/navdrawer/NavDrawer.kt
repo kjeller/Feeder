@@ -71,6 +71,7 @@ import com.nononsenseapps.feeder.ui.compose.theme.FeederTheme
 import com.nononsenseapps.feeder.ui.compose.utils.ImmutableHolder
 import com.nononsenseapps.feeder.ui.compose.utils.immutableListHolderOf
 import com.nononsenseapps.feeder.ui.compose.utils.onKeyEventLikeEscape
+import com.nononsenseapps.feeder.util.sloppyLinkToStrictURL
 import java.net.URL
 import kotlinx.coroutines.launch
 
@@ -615,9 +616,12 @@ private fun Feed(
         title = title,
         unreadCount = unreadCount,
         onItemClick = onItemClick,
-        image = if (imageUrl != null) {
+        /*
+         * Check sloppyLinkToStrictURL to not throw
+         * unnecessary error when feed does not have an image.
+         */
+        image = if (imageUrl != null && imageUrl != sloppyLinkToStrictURL("")) {
             {
-                Log.d("FEEDER_DRAWER", "imageURL $imageUrl")
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(imageUrl.toString()).listener(
