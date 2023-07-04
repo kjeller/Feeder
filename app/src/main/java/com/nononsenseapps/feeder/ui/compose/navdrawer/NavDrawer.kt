@@ -617,6 +617,7 @@ private fun Feed(
         onItemClick = onItemClick,
         image = if (imageUrl != null) {
             {
+                Log.d("FEEDER_DRAWER", "imageURL $imageUrl")
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(imageUrl.toString()).listener(
