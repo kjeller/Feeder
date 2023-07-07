@@ -6,6 +6,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.chimbori.crux.Crux
 import com.nononsenseapps.feeder.archmodel.Repository
 import com.nononsenseapps.feeder.blob.blobFullFile
 import com.nononsenseapps.feeder.blob.blobFullOutputStream
@@ -13,16 +14,26 @@ import com.nononsenseapps.feeder.db.room.FeedItemForFetching
 import com.nononsenseapps.feeder.model.FullTextParser.Companion.LOG_TAG
 import com.nononsenseapps.feeder.util.FilePathProvider
 import com.nononsenseapps.feeder.util.logDebug
-import java.net.URL
 import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
-import com.chimbori.crux.Crux
+import com.chimbori.crux.extractors.ImageUrlExtractor
+import com.chimbori.crux.plugins.AmpRedirector
+import com.chimbori.crux.plugins.FacebookUrlRewriter
+import com.chimbori.crux.plugins.FaviconExtractor
+import com.chimbori.crux.plugins.GoogleUrlRewriter
+import com.chimbori.crux.plugins.HtmlMetadataExtractor
+import com.chimbori.crux.plugins.TrackingParameterRemover
+import com.chimbori.crux.plugins.WebAppManifestParser
+import com.chimbori.crux.plugins.ArticleExtractor
+import com.chimbori.crux.plugins.ImageAbsoluteUriResolver
+import java.net.URL
+import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
-import org.jsoup.nodes.Document
+import org.jsoup.Jsoup
 import org.kodein.di.DI
 import org.kodein.di.DIAware
 import org.kodein.di.android.closestDI
@@ -114,8 +125,22 @@ class FullTextParser(override val di: DI) : DIAware {
                     String(bytes, charset ?: java.nio.charset.StandardCharsets.UTF_8)
                 } ?: return@withContext false to null
                 logDebug(LOG_TAG, "Parsing article ${feedItem.link}")
-                val extract = Crux().extractFrom(url.toHttpUrl(), Document(html))
-                logDebug(LOG_TAG, "Writing article ${feedItem.link}")
+                Log.d(LOG_TAG, "html pre extract $html")
+                // Use image relative to absolute paths and let feeder parser take care of this
+                val extract = runBlocking {
+                    Crux(
+                        listOf(
+                            GoogleUrlRewriter(),
+                            FacebookUrlRewriter(),
+                            FaviconExtractor(),
+                            AmpRedirector(true, okHttpClient),
+                            TrackingParameterRemover(),
+                            ImageAbsoluteUriResolver(okHttpClient),
+                        ),
+                    ).extractFrom(originalUrl = url.toHttpUrl(), Jsoup.parse(html))
+                }
+
+                logDebug(LOG_TAG, "Writing article ${feedItem.link}, ${extract.article?.html()}")
                 withContext(Dispatchers.IO) {
                     filePathProvider.fullArticleDir.mkdirs()
                     blobFullOutputStream(feedItem.id, filePathProvider.fullArticleDir)

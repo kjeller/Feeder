@@ -264,11 +264,11 @@ dependencyResolutionManagement {
             // Custom tabs
             library("androidx-browser", "androidx.browser", "browser").versionRef("androidxBrowser")
             // Full text
-            library(
+            /*library(
                 "crux",
                 "com.chimbori.crux",
                 "crux"
-            ).versionRef("crux")
+            ).versionRef("crux")*/
             // For feeder-sync
             library("retrofit", "com.squareup.retrofit2", "retrofit").versionRef("retrofit")
             library(
@@ -310,4 +310,6 @@ rootProject.name = "feeder"
 include(":app")
 include(":jsonfeed-parser")
 
+// TODO Temporary.. remove when and if plugin gets added
+includeBuild("crux")
 includeBuild("rome")

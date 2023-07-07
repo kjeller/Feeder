@@ -1,3 +1,6 @@
 [submodule "rome"]
 	path = rome
 	url = https://gitlab.com/spacecowboy/rome.git
+[submodule "crux"]
+	path = crux
+	url = git@github.com:chimbori/crux.git
