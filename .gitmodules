@@ -1,3 +1,6 @@
 [submodule "rome"]
 	path = rome
 	url = https://gitlab.com/spacecowboy/rome.git
+[submodule "Readability4J"]
+	path = Readability4J
+	url = git@github.com:dankito/Readability4J.git

@@ -162,6 +162,7 @@
   <string name="failed_to_import_OPML">"Failed to import OPML"</string>
   <string name="failed_to_export_OPML">"Failed to export OPML"</string>
   <string name="device_sync">Device sync</string>
+  <string name="firefox_sync">Firefox sync</string>
   <string name="add_new_device">Add new device</string>
   <string name="device_sync_financed_by_community">This service is paid for by the community. Please consider donating if you find it useful.</string>
   <string name="this_device">%1$s (this device)</string>
@@ -204,7 +205,7 @@
   <string name="save_article">Save article</string>
   <string name="unsave_article">Stop saving article</string>
   <string name="mark_as_read_on_scroll">Mark as read on scroll</string>
-    <string name="no_feeds">No feeds</string>
+  <string name="no_feeds">No feeds</string>
   <string name="zero_feeds">%1$s feeds</string>
   <string name="one_feed">%1$s feed</string>
   <string name="two_feeds">%1$s feeds</string>
@@ -218,4 +219,5 @@
   <string name="few_tags">%1$s tags</string>
   <string name="many_tags">%1$s tags</string>
   <string name="other_tags">%1$s tags</string>
+  <string name="title_activity_firefox_sync_screen">FirefoxSyncScreen</string>
 </resources>

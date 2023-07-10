@@ -173,6 +173,7 @@ fun SettingsScreen(
             onSyncFrequencyChanged = settingsViewModel::setSyncFrequency,
             batteryOptimizationIgnoredValue = viewState.batteryOptimizationIgnored,
             onOpenSyncSettings = onNavigateToSyncScreen,
+            onOpenFirefoxSyncSettings = onNavigateToSyncScreen,
             useDynamicTheme = viewState.useDynamicTheme,
             onUseDynamicTheme = settingsViewModel::setUseDynamicTheme,
             textScale = viewState.textScale,
@@ -230,6 +231,7 @@ fun SettingsScreenPreview() {
                 onSyncFrequencyChanged = {},
                 batteryOptimizationIgnoredValue = false,
                 onOpenSyncSettings = {},
+                onOpenFirefoxSyncSettings = {},
                 useDynamicTheme = true,
                 onUseDynamicTheme = {},
                 textScale = 1.5f,
@@ -283,6 +285,7 @@ fun SettingsList(
     onSyncFrequencyChanged: (SyncFrequency) -> Unit,
     batteryOptimizationIgnoredValue: Boolean,
     onOpenSyncSettings: () -> Unit,
+    onOpenFirefoxSyncSettings: () -> Unit,
     useDynamicTheme: Boolean,
     onUseDynamicTheme: (Boolean) -> Unit,
     textScale: Float,
@@ -504,6 +507,13 @@ fun SettingsList(
             title = stringResource(id = R.string.device_sync),
         ) {
             onOpenSyncSettings()
+        }
+
+        ExternalSetting(
+            currentValue = "",
+            title = stringResource(id = R.string.firefox_sync),
+        ) {
+            onOpenFirefoxSyncSettings()
         }
 
         Divider(modifier = Modifier.width(dimens.maxContentWidth))
