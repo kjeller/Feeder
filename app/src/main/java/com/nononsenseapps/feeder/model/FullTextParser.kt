@@ -2,6 +2,7 @@ package com.nononsenseapps.feeder.model
 
 import android.content.Context
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.work.CoroutineWorker
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -19,16 +20,13 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
-import com.chimbori.crux.extractors.ImageUrlExtractor
 import com.chimbori.crux.plugins.AmpRedirector
 import com.chimbori.crux.plugins.FacebookUrlRewriter
 import com.chimbori.crux.plugins.FaviconExtractor
 import com.chimbori.crux.plugins.GoogleUrlRewriter
-import com.chimbori.crux.plugins.HtmlMetadataExtractor
 import com.chimbori.crux.plugins.TrackingParameterRemover
-import com.chimbori.crux.plugins.WebAppManifestParser
+import com.chimbori.crux.plugins.AbsoluteUriResolver
 import com.chimbori.crux.plugins.ArticleExtractor
-import com.chimbori.crux.plugins.ImageAbsoluteUriResolver
 import java.net.URL
 import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -126,6 +124,10 @@ class FullTextParser(override val di: DI) : DIAware {
                 } ?: return@withContext false to null
                 logDebug(LOG_TAG, "Parsing article ${feedItem.link}")
                 Log.d(LOG_TAG, "html pre extract $html")
+
+                val document = Jsoup.parse(html)
+                document.setBaseUri(url.toUri().toString())
+
                 // Use image relative to absolute paths and let feeder parser take care of this
                 val extract = runBlocking {
                     Crux(
@@ -135,9 +137,10 @@ class FullTextParser(override val di: DI) : DIAware {
                             FaviconExtractor(),
                             AmpRedirector(true, okHttpClient),
                             TrackingParameterRemover(),
-                            ImageAbsoluteUriResolver(okHttpClient),
+                            AbsoluteUriResolver(okHttpClient),
+                            ArticleExtractor(okHttpClient),
                         ),
-                    ).extractFrom(originalUrl = url.toHttpUrl(), Jsoup.parse(html))
+                    ).extractFrom(originalUrl = url.toHttpUrl(), document)
                 }
 
                 logDebug(LOG_TAG, "Writing article ${feedItem.link}, ${extract.article?.html()}")
