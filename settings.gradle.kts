@@ -264,11 +264,11 @@ dependencyResolutionManagement {
             // Custom tabs
             library("androidx-browser", "androidx.browser", "browser").versionRef("androidxBrowser")
             // Full text
-            library(
+            /*library(
                 "readability4j",
                 "net.dankito.readability4j",
                 "readability4j"
-            ).versionRef("readability4j")
+            ).versionRef("readability4j")*/
             // For feeder-sync
             library("retrofit", "com.squareup.retrofit2", "retrofit").versionRef("retrofit")
             library(
@@ -310,4 +310,5 @@ rootProject.name = "feeder"
 include(":app")
 include(":jsonfeed-parser")
 
+includeBuild("Readability4J")
 includeBuild("rome")

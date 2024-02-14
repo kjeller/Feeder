@@ -1,4 +1,4 @@
-package com.nononsenseapps.feeder.ui.compose.feed
+    package com.nononsenseapps.feeder.ui.compose.feed
 
 import android.content.Intent
 import androidx.activity.compose.BackHandler
